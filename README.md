@@ -9,4 +9,6 @@ add .env file with:
 
 download modules `npm i`
 
+# Start 
+
 `node /app.js` to start 
