@@ -1,0 +1,165 @@
+<style>
+:root {
+    background: #0B130E;  
+    color: #ffffff;       
+    color-scheme: dark;  
+}
+
+html, body {
+    height: 100% !important;
+    margin: 0;
+}
+
+body {
+    background-color: #0B130E;  
+    margin-top: 0px;
+    min-height: 100vh;
+    color: #ffffff;
+    font-family:'Calibri', sans-serif;
+}
+
+.btn-back {
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    text-decoration: none;
+    font-size: 50px;
+    color: #22C55E;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 20px;
+}
+
+label {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+textarea {
+    width: 500px;
+    height: 150px;
+    padding: 15px;
+    font-size: 18px;
+    font-family: 'Calibri', sans-serif;
+    background-color: #14221A;
+    color: #ffffff;
+    border: 2px solid #2D4236;
+    border-radius: 10px;
+    resize: none;
+    outline: none;
+}
+
+::placeholder {
+    color: #777777;
+}
+
+.btn-submit {
+    padding: 12px 40px;
+    font-size: 20px;
+    font-family: 'Calibri', sans-serif;
+    background-color: #22C55E;
+    color: #3b2e1a;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.error-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px 20px;
+    background: #2d1a1a;
+    color: #ff4444;
+    font-family: 'Calibri', sans-serif;
+    font-size: 16px;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+</style>
+
+<div><a href="/" class="btn-back">🏠︎</a></div>
+
+{{#if error}}
+  <div class="error-banner">⚠️ {{error}}</div>
+{{/if}}
+
+<div class="container">
+    <label for="text">Впишіть на що були витрачені гроші</label>
+    <form action="/add" method="POST">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <textarea 
+                name="text" 
+                id="text" 
+                placeholder="Наприклад: Mercedes 130 акцій по 100 доларів на CryptoWallet"
+            ></textarea>
+        </div>
+    <button type="button" id="mic-btn" onclick="toggleMic()">🎤</button>
+
+        <script>
+        const textarea = document.getElementById('text');
+        const micBtn = document.getElementById('mic-btn');
+        let recognition;
+        let isListening = false;
+
+        function toggleMic() {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            alert('Браузер не підтримує розпізнавання мови');
+            return;
+            }
+
+            if (isListening) {
+            recognition.stop();
+            return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'uk-UA';       
+            recognition.interimResults = true; 
+            recognition.continuous = false;
+
+            recognition.onstart = () => {
+            isListening = true;
+            micBtn.textContent = '⏹ Зупинити';
+            micBtn.style.background = '#ef4444';
+            };
+
+            recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(r => r[0].transcript)
+                .join('');
+            textarea.value = transcript;
+            };
+
+            recognition.onend = () => {
+            isListening = false;
+            micBtn.textContent = '🎤';
+            micBtn.style.background = '';
+            };
+
+            recognition.onerror = (event) => {
+            console.error('Помилка:', event.error);
+            isListening = false;
+            micBtn.textContent = '🎤';
+            };
+
+            recognition.start();
+        }
+        </script>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <button type="submit" class="btn-submit">Підтвердити</button>
+        </div>
+    </form>
+</div>
